@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Comrades Personal Race Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: #f5f5f5;
+            overflow-x: hidden;
+            padding-bottom: 80px;
+        }
+        
+        .header {
+            background: #FFD700;
+            color: #000;
+            padding: 15px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .header h1 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        
+        .header-subtitle {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .header-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            align-items: center;
+        }
+        
+        .header-time {
+            font-weight: bold;
+        }
+        
+        .settings-button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            padding: 5px;
+            margin-left: 10px;
+        }
+        
+        .start-time-input {
+            background: #fff;
+            border: 2px solid #000;
+            color: #000;
+            padding: 5px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .container {
+            margin-top: 120px;
+            padding: 10px;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .section-header {
+            padding: 12px;
+            background: #ecf0f1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+        }
+        
+        .section-progress {
+            display: flex;
+            height: 40px;
+            position: relative;
+        }
+        
+        .segment {
+            flex: 1;
+            border-right: 1px solid rgba(255,255,255,0.3);
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 10px;
+            color: rgba(0,0,0,0.6);
+        }
+        
+        .segment:last-child {
+            border-right: none;
+        }
+        
+        .segment:active {
+            transform: scale(0.95);
+        }
+        
+        .flat { background: #f1c40f; }
+        .uphill { background: #e74c3c; }
+        .downhill { background: #2ecc71; }
+        
+        .fuel-station {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 20px;
+        }
+        
+        .section-info {
+            padding: 10px 12px;
+            background: #f8f9fa;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .actual-time {
+            background: #3498db;
+            color: white;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+        }
+        
+        .modal h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .modal-info {
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn:active {
+            transform: scale(0.95);
+        }
+        
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .time-input {
+            width: 100%;
+            padding: 12px;
+            font-size: 18px;
+            border: 2px solid #3498db;
+            border-radius: 6px;
+            text-align: center;
+            margin: 10px 0;
+        }
+        
+        .stats {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 15px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            font-size: 14px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 12px;
+        }
+        
+        .stat-value {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+        
+        .legend {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-around;
+            font-size: 12px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        
+        .logs-button {
+            position: fixed;
+            bottom: 85px;
+            right: 20px;
+            background: #FFD700;
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 14px;
+            border: 2px solid #000;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 999;
+        }
+        
+        .logs-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 2001;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
+        }
+        
+        .logs-content {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            margin: 20px;
+        }
+        
+        .log-entry {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+        
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+        
+        .log-time {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .log-details {
+            color: #666;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        .clear-logs-btn {
+            background: #e74c3c;
+            color: white;
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            margin-top: 15px;
+            cursor: pointer;
+        }
+        
+        .settings-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 2002;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .settings-content {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+        }
+        
+        .settings-group {
+            margin-bottom: 20px;
+        }
+        
+        .settings-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .settings-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        
+        .settings-help {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .btn-save {
+            background: #2ecc71;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>COMRADES ULTRA MARATHON</h1>
+        <div class="header-subtitle">Personal Race Tracker - <span id="raceDistance">89</span>km</div>
+        <div class="header-info">
+            <span class="header-time">Start: <span id="displayStartTime">05:15</span></span>
+            <div>
+                <span id="currentTime"></span>
+                <button class="settings-button" onclick="openSettings()">⚙️</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color flat"></div>
+                <span>Flat</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color uphill"></div>
+                <span>Uphill</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color downhill"></div>
+                <span>Downhill</span>
+            </div>
+            <div class="legend-item">
+                <span>💜 Fuel Station</span>
+            </div>
+        </div>
+        
+        <div id="raceTrack"></div>
+    </div>
+    
+    <div class="stats">
+        <div class="stat-item">
+            <div class="stat-label">Distance</div>
+            <div class="stat-value" id="distanceStat">0 / <span id="totalDistance">89</span>km</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">Avg Pace</div>
+            <div class="stat-value" id="paceStat">6:27</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">ETA</div>
+            <div class="stat-value" id="etaStat">14:48</div>
+        </div>
+    </div>
+    
+    <div class="modal" id="segmentModal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Segment Details</h3>
+            <div class="modal-info">
+                <strong>Distance:</strong> <span id="modalDistance"></span>
+            </div>
+            <div class="modal-info">
+                <strong>Projected Time:</strong> <span id="modalProjected"></span>
+            </div>
+            <div class="modal-info">
+                <strong>Terrain:</strong> <span id="modalTerrain"></span>
+            </div>
+            <input type="time" class="time-input" id="actualTimeInput" step="1">
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="saveActualTime()">Save Actual Time</button>
+                <button class="btn btn-danger" onclick="clearActualTime()">Clear</button>
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            </div>
+            <button class="btn btn-share" onclick="shareUpdate()">📤 Share Update</button>
+        </div>
+    </div>
+
+    <button class="logs-button" onclick="showLogs()">📋 View Logs</button>
+    
+    <div class="logs-modal" id="logsModal">
+        <div class="logs-content">
+            <h3 style="margin-bottom: 15px;">Race Time Logs</h3>
+            <div id="logsContainer"></div>
+            <button class="clear-logs-btn" onclick="clearLogs()">Clear All Logs</button>
+            <button class="btn btn-secondary" style="width: 100%; margin-top: 10px;" onclick="closeLogs()">Close</button>
+        </div>
+    </div>
+
+    <div class="settings-modal" id="settingsModal">
+        <div class="settings-content">
+            <h3 style="margin-bottom: 20px;">Race Settings</h3>
+            
+            <div class="settings-group">
+                <label class="settings-label">Start Time</label>
+                <input type="time" class="settings-input" id="startTime" value="05:15">
+                <div class="settings-help">Official race start time</div>
+            </div>
+            
+            <div class="settings-group">
+                <label class="settings-label">Race Distance (km)</label>
+                <input type="number" class="settings-input" id="raceDistanceInput" value="89" min="1" max="200">
+                <div class="settings-help">Total distance of the race</div>
+            </div>
+            
+            <div class="settings-group">
+                <label class="settings-label">Target Finish Time</label>
+                <input type="text" class="settings-input" id="targetFinishTime" placeholder="10:05" pattern="[0-9]{1,2}:[0-9]{2}">
+                <div class="settings-help">Format: HH:MM (e.g., 7:29 for silver medal)</div>
+            </div>
+            
+            <div class="settings-group">
+                <label class="settings-label">Minutes to Cross Start Line</label>
+                <input type="number" class="settings-input" id="startDelay" value="0" min="0" max="60">
+                <div class="settings-help">Delay after gun time due to congestion</div>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="btn btn-save" onclick="saveSettings()">Save Settings</button>
+                <button class="btn btn-secondary" onclick="closeSettings()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Race data
+        const raceData = [
+            { km: 5, pace: "06:27", difficulty: 1.035656531, terrain: "yellow", landmarks: "Easy Start", fuelStation: false },
+            { km: 10, pace: "06:31", difficulty: 1.012269955, terrain: "green|red|green", landmarks: "Big Polly's", fuelStation: false },
+            { km: 15, pace: "06:35", difficulty: 1.022229202, terrain: "red|yellow|green", landmarks: "Little Polly's", fuelStation: false },
+            { km: 20, pace: "06:42", difficulty: 1.042336956, terrain: "red|yellow|red", landmarks: "", fuelStation: false },
+            { km: 25, pace: "06:23", difficulty: 0.992224611, terrain: "green|red|green|red|green", landmarks: "Camperdown", fuelStation: false },
+            { km: 30, pace: "06:23", difficulty: 0.992224611, terrain: "green|red", landmarks: "", fuelStation: true },
+            { km: 35, pace: "06:27", difficulty: 1.002247708, terrain: "green|red|yellow", landmarks: "Cato", fuelStation: false },
+            { km: 40, pace: "06:27", difficulty: 1.002247708, terrain: "yellow|red|yellow", landmarks: "Harrison Flats", fuelStation: false },
+            { km: 45, pace: "06:23", difficulty: 0.992224611, terrain: "red|green|red", landmarks: "Drummond", fuelStation: true },
+            { km: 50, pace: "06:42", difficulty: 1.042336956, terrain: "red|yellow|red", landmarks: "", fuelStation: false },
+            { km: 55, pace: "06:15", difficulty: 0.972179673, terrain: "red|yellow|green|red|green", landmarks: "Botha's", fuelStation: true },
+            { km: 60, pace: "06:15", difficulty: 0.972179673, terrain: "green", landmarks: "", fuelStation: true },
+            { km: 65, pace: "06:15", difficulty: 0.972179673, terrain: "green", landmarks: "Fields", fuelStation: false },
+            { km: 70, pace: "06:15", difficulty: 0.972179673, terrain: "green|red|green", landmarks: "", fuelStation: false },
+            { km: 75, pace: "06:35", difficulty: 1.022229202, terrain: "green|red|green", landmarks: "Cowies", fuelStation: true },
+            { km: 80, pace: "06:31", difficulty: 1.012269955, terrain: "yellow|green", landmarks: "", fuelStation: false },
+            { km: 85, pace: "07:06", difficulty: 1.102471179, terrain: "red|green|red|green", landmarks: "45th", fuelStation: false },
+            { km: 89, pace: "06:42", difficulty: 1.042336956, terrain: "green|yellow|green|yellow", landmarks: "TG", fuelStation: false }
+        ];
+
+        // Global state
+        let segments = [];
+        let actualTimes = {};
+        let basePace = 387; // 6:27 in seconds (will be recalculated)
+        let raceLogs = [];
+        let useLocalStorage = false;
+        let raceSettings = {
+            distance: 89,
+            targetTime: null, // in minutes
+            startDelay: 0, // minutes to cross start line
+            startTime: '05:15'
+        };
+        
+        // Check if localStorage is available
+        try {
+            localStorage.setItem('test', 'test');
+            localStorage.removeItem('test');
+            useLocalStorage = true;
+        } catch (e) {
+            console.log('localStorage not available, using in-memory storage');
+            useLocalStorage = false;
+        }
+        
+        // Load logs from localStorage on startup
+        function loadLogs() {
+            if (useLocalStorage) {
+                try {
+                    const savedLogs = localStorage.getItem('comradesRaceLogs');
+                    if (savedLogs) {
+                        raceLogs = JSON.parse(savedLogs);
+                    }
+                } catch (e) {
+                    console.log('Could not load logs from localStorage');
+                }
+            }
+        }
+        
+        // Save logs to localStorage
+        function saveLogs() {
+            if (useLocalStorage) {
+                try {
+                    localStorage.setItem('comradesRaceLogs', JSON.stringify(raceLogs));
+                } catch (e) {
+                    console.log('Could not save logs to localStorage');
+                }
+            }
+        }
+        
+        // Load settings from localStorage
+        function loadSettings() {
+            if (useLocalStorage) {
+                try {
+                    const saved = localStorage.getItem('comradesRaceSettings');
+                    if (saved) {
+                        const settings = JSON.parse(saved);
+                        raceSettings = { ...raceSettings, ...settings };
+                        document.getElementById('startTime').value = raceSettings.startTime;
+                        document.getElementById('displayStartTime').textContent = raceSettings.startTime;
+                        document.getElementById('raceDistance').textContent = raceSettings.distance;
+                        document.getElementById('totalDistance').textContent = raceSettings.distance;
+                        document.getElementById('raceDistanceInput').value = raceSettings.distance;
+                        if (raceSettings.targetTime) {
+                            const hours = Math.floor(raceSettings.targetTime / 60);
+                            const minutes = raceSettings.targetTime % 60;
+                            document.getElementById('targetFinishTime').value = 
+                                `${hours}:${minutes.toString().padStart(2, '0')}`;
+                        }
+                        document.getElementById('startDelay').value = raceSettings.startDelay || 0;
+                        calculateBasePace();
+                    }
+                } catch (e) {
+                    console.log('Could not load settings');
+                }
+            }
+        }
+        
+        // Save settings to localStorage
+        function saveSettingsToStorage() {
+            if (useLocalStorage) {
+                try {
+                    localStorage.setItem('comradesRaceSettings', JSON.stringify(raceSettings));
+                } catch (e) {
+                    console.log('Could not save settings');
+                }
+            }
+        }
+        
+        // Calculate base pace from target time
+        function calculateBasePace() {
+            if (raceSettings.targetTime) {
+                // Convert target time to seconds and subtract start delay
+                const targetSeconds = (raceSettings.targetTime * 60) - (raceSettings.startDelay * 60);
+                // Calculate base pace per km
+                basePace = targetSeconds / raceSettings.distance;
+            } else {
+                // Default pace for 9:30 finish over 89km
+                basePace = (9.5 * 3600) / 89;
+            }
+        }
+        
+        // Open settings modal
+        function openSettings() {
+            document.getElementById('settingsModal').style.display = 'flex';
+        }
+        
+        // Close settings modal
+        function closeSettings() {
+            document.getElementById('settingsModal').style.display = 'none';
+        }
+        
+        // Save settings
+        function saveSettings() {
+            const startTime = document.getElementById('startTime').value;
+            const distance = parseInt(document.getElementById('raceDistanceInput').value);
+            const targetTimeStr = document.getElementById('targetFinishTime').value;
+            const startDelay = parseInt(document.getElementById('startDelay').value) || 0;
+            
+            raceSettings.startTime = startTime;
+            raceSettings.distance = distance;
+            raceSettings.startDelay = startDelay;
+            
+            // Parse target time
+            if (targetTimeStr) {
+                const [hours, minutes] = targetTimeStr.split(':').map(Number);
+                raceSettings.targetTime = hours * 60 + minutes;
+            }
+            
+            // Update displays
+            document.getElementById('displayStartTime').textContent = startTime;
+            document.getElementById('raceDistance').textContent = distance;
+            document.getElementById('totalDistance').textContent = distance;
+            
+            // Recalculate pace and save
+            calculateBasePace();
+            saveSettingsToStorage();
+            
+            // Recreate segments if distance changed
+            if (distance !== 89) {
+                createSegmentsForDistance();
+            }
+            
+            // Re-render everything
+            renderTrack();
+            updateStats();
+            closeSettings();
+        }
+        
+        // Create segments for custom distance
+        function createSegmentsForDistance() {
+            segments = [];
+            const sectionCount = Math.ceil(raceSettings.distance / 5);
+            let currentKm = 0;
+            
+            for (let i = 0; i < sectionCount; i++) {
+                const sectionEnd = Math.min((i + 1) * 5, raceSettings.distance);
+                const sectionLength = sectionEnd - currentKm;
+                const segmentsInSection = Math.round(sectionLength * 2);
+                
+                for (let j = 0; j < segmentsInSection; j++) {
+                    const segmentKm = currentKm + (j * 0.5);
+                    
+                    segments.push({
+                        id: segments.length,
+                        km: segmentKm,
+                        endKm: Math.min(segmentKm + 0.5, raceSettings.distance),
+                        terrain: 'yellow',
+                        difficulty: 1.0,
+                        sectionIndex: i,
+                        landmarks: '',
+                        fuelStation: false,
+                        isLastInSection: j === segmentsInSection - 1
+                    });
+                }
+                
+                currentKm = sectionEnd;
+            }
+        }
+        
+        // Add log entry
+        function addLogEntry(km, actualTime, projectedTime, terrain, landmarks) {
+            // Calculate delta
+            const [actHours, actMinutes, actSeconds] = actualTime.split(':').map(Number);
+            const actualTotalSeconds = actHours * 3600 + actMinutes * 60 + (actSeconds || 0);
+            
+            const [projHours, projMinutes, projSeconds] = projectedTime.split(':').map(Number);
+            const projectedTotalSeconds = projHours * 3600 + projMinutes * 60 + (projSeconds || 0);
+            
+            const deltaSeconds = actualTotalSeconds - projectedTotalSeconds;
+            const isAhead = deltaSeconds < 0;
+            const absDelta = Math.abs(deltaSeconds);
+            const deltaMinutes = Math.floor(absDelta / 60);
+            const deltaSecs = Math.floor(absDelta % 60);
+            const deltaString = `${isAhead ? '-' : '+'}${deltaMinutes.toString().padStart(2, '0')}:${deltaSecs.toString().padStart(2, '0')}`;
+            
+            const entry = {
+                timestamp: new Date().toISOString(),
+                km: km,
+                actualTime: actualTime,
+                projectedTime: projectedTime,
+                delta: deltaString,
+                terrain: terrain,
+                landmarks: landmarks,
+                pace: calculateRecentPace()
+            };
+            raceLogs.push(entry);
+            saveLogs();
+        }
+        
+        // Initialize the app
+        function init() {
+            loadSettings();
+            loadLogs();
+            if (raceSettings.distance === 89) {
+                createSegments();
+            } else {
+                createSegmentsForDistance();
+            }
+            renderTrack();
+            updateStats();
+            setInterval(updateCurrentTime, 1000);
+        }
+        
+        // Create segments from race data
+        function createSegments() {
+            segments = [];
+            let currentKm = 0;
+            
+            raceData.forEach((section, sectionIndex) => {
+                const sectionLength = section.km - currentKm;
+                const terrainParts = section.terrain.split('|');
+                const segmentsPerSection = sectionLength * 2; // 500m segments
+                
+                // Distribute terrain across segments
+                const terrainPerSegment = [];
+                const segmentsPerTerrain = Math.floor(segmentsPerSection / terrainParts.length);
+                let remainingSegments = segmentsPerSection;
+                
+                terrainParts.forEach((terrain, i) => {
+                    const segments = i === terrainParts.length - 1 ? remainingSegments : segmentsPerTerrain;
+                    for (let j = 0; j < segments; j++) {
+                        terrainPerSegment.push(terrain);
+                    }
+                    remainingSegments -= segments;
+                });
+                
+                // Create segments
+                for (let i = 0; i < segmentsPerSection; i++) {
+                    const segmentKm = currentKm + (i * 0.5);
+                    const terrain = terrainPerSegment[i] || 'yellow';
+                    
+                    // Calculate difficulty for this specific terrain
+                    let segmentDifficulty = section.difficulty;
+                    if (terrain === 'red') segmentDifficulty *= 1.1; // 10% harder
+                    if (terrain === 'green') segmentDifficulty *= 0.9; // 10% easier
+                    
+                    segments.push({
+                        id: segments.length,
+                        km: segmentKm,
+                        endKm: segmentKm + 0.5,
+                        terrain: terrain,
+                        difficulty: segmentDifficulty,
+                        sectionIndex: sectionIndex,
+                        landmarks: i === 0 ? section.landmarks : '',
+                        fuelStation: i === 0 && section.fuelStation,
+                        isLastInSection: i === segmentsPerSection - 1
+                    });
+                }
+                
+                currentKm = section.km;
+            });
+        }
+        
+        // Render the race track
+        function renderTrack() {
+            const trackContainer = document.getElementById('raceTrack');
+            trackContainer.innerHTML = '';
+            
+            let currentSection = -1;
+            let sectionDiv = null;
+            let progressDiv = null;
+            
+            segments.forEach((segment, index) => {
+                if (segment.sectionIndex !== currentSection) {
+                    currentSection = segment.sectionIndex;
+                    const section = raceData[currentSection];
+                    
+                    sectionDiv = document.createElement('div');
+                    sectionDiv.className = 'section';
+                    
+                    const headerDiv = document.createElement('div');
+                    headerDiv.className = 'section-header';
+                    headerDiv.innerHTML = `
+                        <span>${segment.km}-${section.km}km ${segment.landmarks ? '- ' + segment.landmarks : ''}</span>
+                        <span>ETA: ${calculateETA(section.km)}</span>
+                    `;
+                    sectionDiv.appendChild(headerDiv);
+                    
+                    progressDiv = document.createElement('div');
+                    progressDiv.className = 'section-progress';
+                    sectionDiv.appendChild(progressDiv);
+                    
+                    const infoDiv = document.createElement('div');
+                    infoDiv.className = 'section-info';
+                    infoDiv.innerHTML = `
+                        <span>Difficulty: ${section.difficulty.toFixed(2)}</span>
+                        <span>Pace: ${section.pace}/km</span>
+                    `;
+                    sectionDiv.appendChild(infoDiv);
+                    
+                    trackContainer.appendChild(sectionDiv);
+                }
+                
+                const segmentDiv = document.createElement('div');
+                segmentDiv.className = `segment ${getTerrainClass(segment.terrain)}`;
+                segmentDiv.onclick = () => openModal(segment);
+                
+                if (actualTimes[segment.id]) {
+                    segmentDiv.classList.add('actual-time');
+                }
+                
+                if (segment.fuelStation) {
+                    segmentDiv.innerHTML = '<div class="fuel-station">💜</div>';
+                }
+                
+                progressDiv.appendChild(segmentDiv);
+            });
+        }
+        
+        // Get terrain class
+        function getTerrainClass(terrain) {
+            switch(terrain) {
+                case 'yellow': return 'flat';
+                case 'red': return 'uphill';
+                case 'green': return 'downhill';
+                default: return 'flat';
+            }
+        }
+        
+        // Calculate ETA for a given km
+        function calculateETA(km) {
+            const startTime = raceSettings.startTime;
+            const [hours, minutes] = startTime.split(':').map(Number);
+            let totalSeconds = hours * 3600 + minutes * 60;
+            
+            // Add start delay
+            totalSeconds += raceSettings.startDelay * 60;
+            
+            // Calculate time to this point
+            let timeToPoint = 0;
+            let lastActualKm = 0;
+            let lastActualTime = 0;
+            
+            // Find the most recent actual time
+            for (let i = 0; i < segments.length && segments[i].endKm <= km; i++) {
+                if (actualTimes[segments[i].id]) {
+                    lastActualKm = segments[i].endKm;
+                    lastActualTime = actualTimes[segments[i].id];
+                }
+            }
+            
+            if (lastActualTime > 0) {
+                // Use actual time as base
+                totalSeconds = lastActualTime;
+                
+                // Calculate remaining time with weighted recent performance
+                const recentPace = calculateRecentPace();
+                const remainingKm = km - lastActualKm;
+                
+                // Apply difficulty to remaining segments
+                for (let i = 0; i < segments.length; i++) {
+                    if (segments[i].km >= lastActualKm && segments[i].endKm <= km) {
+                        timeToPoint += 0.5 * recentPace * segments[i].difficulty;
+                        
+                        // Add fuel station delay
+                        if (segments[i].fuelStation) {
+                            timeToPoint += 60; // 1 minute delay
+                        }
+                    }
+                }
+            } else {
+                // Use projected time
+                for (let i = 0; i < segments.length && segments[i].endKm <= km; i++) {
+                    timeToPoint += 0.5 * basePace * segments[i].difficulty;
+                    
+                    // Add fuel station delay
+                    if (segments[i].fuelStation) {
+                        timeToPoint += 60; // 1 minute delay
+                    }
+                }
+            }
+            
+            totalSeconds += timeToPoint;
+            
+            const etaHours = Math.floor(totalSeconds / 3600);
+            const etaMinutes = Math.floor((totalSeconds % 3600) / 60);
+            const etaSeconds = Math.floor(totalSeconds % 60);
+            
+            return `${etaHours.toString().padStart(2, '0')}:${etaMinutes.toString().padStart(2, '0')}:${etaSeconds.toString().padStart(2, '0')}`;
+        }
+        
+        // Calculate recent pace weighted heavily
+        function calculateRecentPace() {
+            const actualSegments = Object.keys(actualTimes).map(id => ({
+                id: parseInt(id),
+                time: actualTimes[id]
+            })).sort((a, b) => b.id - a.id); // Sort by most recent
+            
+            if (actualSegments.length === 0) return basePace;
+            
+            // Weight recent performances more heavily
+            let weightedPace = 0;
+            let totalWeight = 0;
+            
+            actualSegments.forEach((actual, index) => {
+                const segment = segments[actual.id];
+                const prevSegment = actual.id > 0 ? segments[actual.id - 1] : null;
+                
+                if (prevSegment && actualTimes[prevSegment.id]) {
+                    const distance = segment.endKm - prevSegment.endKm;
+                    const time = actual.time - actualTimes[prevSegment.id];
+                    const pace = time / distance;
+                    
+                    // Weight decreases exponentially for older segments
+                    const weight = Math.pow(0.7, index);
+                    weightedPace += pace * weight;
+                    totalWeight += weight;
+                }
+            });
+            
+            if (totalWeight > 0) {
+                return weightedPace / totalWeight;
+            }
+            
+            // If only one actual time, use it with base pace
+            const firstActual = actualSegments[0];
+            const segment = segments[firstActual.id];
+            const projectedTime = calculateProjectedTime(segment.endKm);
+            const actualTime = firstActual.time;
+            const ratio = actualTime / projectedTime;
+            
+            return basePace * ratio;
+        }
+        
+        // Calculate projected time to a point
+        function calculateProjectedTime(km) {
+            const startTime = raceSettings.startTime;
+            const [hours, minutes] = startTime.split(':').map(Number);
+            let totalSeconds = hours * 3600 + minutes * 60;
+            
+            // Add start delay
+            totalSeconds += raceSettings.startDelay * 60;
+            
+            for (let i = 0; i < segments.length && segments[i].endKm <= km; i++) {
+                totalSeconds += 0.5 * basePace * segments[i].difficulty;
+                if (segments[i].fuelStation) {
+                    totalSeconds += 60;
+                }
+            }
+            
+            return totalSeconds;
+        }
+        
+        // Open modal for segment
+        let currentSegment = null;
+        function openModal(segment) {
+            currentSegment = segment;
+            const modal = document.getElementById('segmentModal');
+            
+            document.getElementById('modalTitle').textContent = `${segment.km} - ${segment.endKm}km`;
+            document.getElementById('modalDistance').textContent = `${segment.km} - ${segment.endKm}km`;
+            document.getElementById('modalProjected').textContent = calculateETA(segment.endKm);
+            document.getElementById('modalTerrain').textContent = getTerrainName(segment.terrain) + 
+                (segment.fuelStation ? ' (Fuel Station +1min)' : '');
+            
+            const actualTime = actualTimes[segment.id];
+            if (actualTime) {
+                const hours = Math.floor(actualTime / 3600);
+                const minutes = Math.floor((actualTime % 3600) / 60);
+                const seconds = Math.floor(actualTime % 60);
+                document.getElementById('actualTimeInput').value = 
+                    `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            } else {
+                document.getElementById('actualTimeInput').value = calculateETA(segment.endKm);
+            }
+            
+            modal.style.display = 'flex';
+        }
+        
+        // Get terrain name
+        function getTerrainName(terrain) {
+            switch(terrain) {
+                case 'yellow': return 'Flat';
+                case 'red': return 'Uphill';
+                case 'green': return 'Downhill';
+                default: return 'Unknown';
+            }
+        }
+        
+        // Save actual time
+        function saveActualTime() {
+            const timeInput = document.getElementById('actualTimeInput').value;
+            const [hours, minutes, seconds] = timeInput.split(':').map(Number);
+            const totalSeconds = hours * 3600 + minutes * 60 + (seconds || 0);
+            
+            // Get the original projected time BEFORE saving the actual time
+            const originalProjectedTime = calculateETA(currentSegment.endKm);
+            
+            actualTimes[currentSegment.id] = totalSeconds;
+            
+            // Add to logs with the original projected time
+            const terrain = getTerrainName(currentSegment.terrain);
+            addLogEntry(
+                currentSegment.endKm,
+                timeInput,
+                originalProjectedTime,
+                terrain,
+                currentSegment.landmarks
+            );
+            
+            renderTrack();
+            updateStats();
+            closeModal();
+        }
+        
+        // Clear actual time
+        function clearActualTime() {
+            delete actualTimes[currentSegment.id];
+            renderTrack();
+            updateStats();
+            closeModal();
+        }
+        
+        // Close modal
+        function closeModal() {
+            document.getElementById('segmentModal').style.display = 'none';
+        }
+        
+        // Update stats
+        function updateStats() {
+            // Calculate distance covered
+            let distanceCovered = 0;
+            Object.keys(actualTimes).forEach(id => {
+                const segment = segments[parseInt(id)];
+                if (segment.endKm > distanceCovered) {
+                    distanceCovered = segment.endKm;
+                }
+            });
+            
+            document.getElementById('distanceStat').textContent = `${distanceCovered} / ${raceSettings.distance}km`;
+            
+            // Calculate current pace
+            const recentPace = calculateRecentPace();
+            const paceMinutes = Math.floor(recentPace / 60);
+            const paceSeconds = Math.floor(recentPace % 60);
+            document.getElementById('paceStat').textContent = 
+                `${paceMinutes}:${paceSeconds.toString().padStart(2, '0')}`;
+            
+            // Update ETA
+            document.getElementById('etaStat').textContent = calculateETA(raceSettings.distance).substring(0, 5);
+        }
+        
+        // Update current time
+        function updateCurrentTime() {
+            const now = new Date();
+            const timeString = now.toTimeString().substring(0, 8);
+            document.getElementById('currentTime').textContent = timeString;
+        }
+        
+        // Share update function
+        function shareUpdate() {
+            const timeInput = document.getElementById('actualTimeInput').value;
+            const currentKm = currentSegment.endKm;
+            const finishETA = calculateETA(raceSettings.distance);
+            
+            // Calculate pace comparison
+            const actualTime = actualTimes[currentSegment.id];
+            let paceComparison = "on track";
+            
+            if (actualTime) {
+                const projectedTime = calculateProjectedTime(currentKm);
+                const difference = actualTime - projectedTime;
+                
+                if (difference > 120) { // More than 2 minutes slower
+                    paceComparison = "running a bit slower than planned";
+                } else if (difference < -120) { // More than 2 minutes faster
+                    paceComparison = "running faster than planned";
+                } else {
+                    paceComparison = "on track as planned";
+                }
+            }
+            
+            // Format the message
+            const message = `🏃‍♀️ Rhona has just passed the ${currentKm}km mark at ${timeInput} and is projected to finish at ${finishETA.substring(0, 5)}. She's ${paceComparison}! 💪`;
+            
+            // Copy to clipboard
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(message).then(() => {
+                    showShareNotification();
+                }).catch(() => {
+                    // Fallback for older browsers
+                    fallbackCopyToClipboard(message);
+                });
+            } else {
+                fallbackCopyToClipboard(message);
+            }
+        }
+        
+        // Fallback copy method
+        function fallbackCopyToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-999999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showShareNotification();
+            } catch (err) {
+                alert('Failed to copy message. Please copy manually:\n\n' + text);
+            }
+            
+            document.body.removeChild(textArea);
+        }
+        
+        // Show share notification
+        function showShareNotification() {
+            const notification = document.getElementById('shareNotification');
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 2000);
+        }
+        
+        // Export data for validation
+        function exportData() {
+            const data = {
+                segments: segments.map(s => ({
+                    km: `${s.km}-${s.endKm}`,
+                    terrain: s.terrain,
+                    difficulty: s.difficulty,
+                    projected: calculateETA(s.endKm),
+                    actual: actualTimes[s.id] ? new Date(actualTimes[s.id] * 1000).toISOString().substr(11, 8) : null
+                })),
+                stats: {
+                    distanceCovered: document.getElementById('distanceStat').textContent,
+                    currentPace: document.getElementById('paceStat').textContent,
+                    eta: document.getElementById('etaStat').textContent
+                },
+                logs: raceLogs
+            };
+            console.log('Export Data:', data);
+            return data;
+        }
+        
+        // Show logs modal
+        function showLogs() {
+            const logsContainer = document.getElementById('logsContainer');
+            logsContainer.innerHTML = '';
+            
+            if (raceLogs.length === 0) {
+                logsContainer.innerHTML = '<p style="text-align: center; color: #666;">No time logs recorded yet</p>';
+            } else {
+                raceLogs.forEach((log, index) => {
+                    const logDate = new Date(log.timestamp);
+                    const logDiv = document.createElement('div');
+                    logDiv.className = 'log-entry';
+                    
+                    const paceMinutes = Math.floor(log.pace / 60);
+                    const paceSeconds = Math.floor(log.pace % 60);
+                    
+                    logDiv.innerHTML = `
+                        <div class="log-time">${log.km}km at ${log.actualTime} <span style="color: ${log.delta.startsWith('+') ? '#e74c3c' : '#2ecc71'}; font-weight: bold;">${log.delta}</span></div>
+                        <div class="log-details">
+                            Projected: ${log.projectedTime}<br>
+                            Terrain: ${log.terrain}${log.landmarks ? ' - ' + log.landmarks : ''}<br>
+                            Pace: ${paceMinutes}:${paceSeconds.toString().padStart(2, '0')}/km<br>
+                            Logged: ${logDate.toLocaleTimeString()}
+                        </div>
+                    `;
+                    logsContainer.appendChild(logDiv);
+                });
+            }
+            
+            document.getElementById('logsModal').style.display = 'flex';
+        }
+        
+        // Close logs modal
+        function closeLogs() {
+            document.getElementById('logsModal').style.display = 'none';
+        }
+        
+        // Clear all logs
+        function clearLogs() {
+            if (confirm('Are you sure you want to clear all logs?')) {
+                raceLogs = [];
+                saveLogs();
+                showLogs(); // Refresh the display
+            }
+        }
+        
+        // Initialize when page loads
+        window.onload = init;
+        
+        // Prevent zooming on double tap
+        document.addEventListener('touchstart', function(event) {
+            if (event.touches.length > 1) {
+                event.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
