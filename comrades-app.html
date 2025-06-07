@@ -398,12 +398,23 @@
             background: #2ecc71;
             color: white;
         }
+        
+        .settings-error {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .settings-input.error {
+            border-color: #e74c3c;
+        }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>COMRADES ULTRA MARATHON</h1>
-        <div class="header-subtitle">Personal Race Tracker - <span id="raceDistance">89</span>km</div>
+        <div class="header-subtitle">Personal Race Tracker - <span id="raceDistance">91</span>km</div>
         <div class="header-info">
             <span class="header-time">Start: <span id="displayStartTime">05:15</span></span>
             <div>
@@ -438,7 +449,7 @@
     <div class="stats">
         <div class="stat-item">
             <div class="stat-label">Distance</div>
-            <div class="stat-value" id="distanceStat">0 / <span id="totalDistance">89</span>km</div>
+            <div class="stat-value" id="distanceStat">0 / <span id="totalDistance">91</span>km</div>
         </div>
         <div class="stat-item">
             <div class="stat-label">Avg Pace</div>
@@ -491,24 +502,28 @@
                 <label class="settings-label">Start Time</label>
                 <input type="time" class="settings-input" id="startTime" value="05:15">
                 <div class="settings-help">Official race start time</div>
+                <div class="settings-error" id="startTimeError"></div>
             </div>
             
             <div class="settings-group">
                 <label class="settings-label">Race Distance (km)</label>
-                <input type="number" class="settings-input" id="raceDistanceInput" value="89" min="1" max="200">
-                <div class="settings-help">Total distance of the race</div>
+                <input type="number" class="settings-input" id="raceDistanceInput" value="91" min="5" max="200">
+                <div class="settings-help">Total distance of the race (minimum 5km)</div>
+                <div class="settings-error" id="distanceError"></div>
             </div>
             
             <div class="settings-group">
                 <label class="settings-label">Target Finish Time</label>
-                <input type="text" class="settings-input" id="targetFinishTime" placeholder="10:05" pattern="[0-9]{1,2}:[0-9]{2}">
+                <input type="text" class="settings-input" id="targetFinishTime" placeholder="8:00" pattern="[0-9]{1,2}:[0-9]{2}">
                 <div class="settings-help">Format: HH:MM (e.g., 7:29 for silver medal)</div>
+                <div class="settings-error" id="targetTimeError"></div>
             </div>
             
             <div class="settings-group">
                 <label class="settings-label">Minutes to Cross Start Line</label>
                 <input type="number" class="settings-input" id="startDelay" value="0" min="0" max="60">
                 <div class="settings-help">Delay after gun time due to congestion</div>
+                <div class="settings-error" id="startDelayError"></div>
             </div>
             
             <div class="modal-buttons">
@@ -519,26 +534,26 @@
     </div>
 
     <script>
-        // Race data
+        // Race data - 91km Comrades Ultra Marathon (Down Route)
         const raceData = [
-            { km: 5, pace: "06:27", difficulty: 1.035656531, terrain: "yellow", landmarks: "Easy Start", fuelStation: false },
-            { km: 10, pace: "06:31", difficulty: 1.012269955, terrain: "green|red|green", landmarks: "Big Polly's", fuelStation: false },
-            { km: 15, pace: "06:35", difficulty: 1.022229202, terrain: "red|yellow|green", landmarks: "Little Polly's", fuelStation: false },
-            { km: 20, pace: "06:42", difficulty: 1.042336956, terrain: "red|yellow|red", landmarks: "", fuelStation: false },
-            { km: 25, pace: "06:23", difficulty: 0.992224611, terrain: "green|red|green|red|green", landmarks: "Camperdown", fuelStation: false },
-            { km: 30, pace: "06:23", difficulty: 0.992224611, terrain: "green|red", landmarks: "", fuelStation: true },
-            { km: 35, pace: "06:27", difficulty: 1.002247708, terrain: "green|red|yellow", landmarks: "Cato", fuelStation: false },
-            { km: 40, pace: "06:27", difficulty: 1.002247708, terrain: "yellow|red|yellow", landmarks: "Harrison Flats", fuelStation: false },
-            { km: 45, pace: "06:23", difficulty: 0.992224611, terrain: "red|green|red", landmarks: "Drummond", fuelStation: true },
-            { km: 50, pace: "06:42", difficulty: 1.042336956, terrain: "red|yellow|red", landmarks: "", fuelStation: false },
-            { km: 55, pace: "06:15", difficulty: 0.972179673, terrain: "red|yellow|green|red|green", landmarks: "Botha's", fuelStation: true },
-            { km: 60, pace: "06:15", difficulty: 0.972179673, terrain: "green", landmarks: "", fuelStation: true },
-            { km: 65, pace: "06:15", difficulty: 0.972179673, terrain: "green", landmarks: "Fields", fuelStation: false },
-            { km: 70, pace: "06:15", difficulty: 0.972179673, terrain: "green|red|green", landmarks: "", fuelStation: false },
-            { km: 75, pace: "06:35", difficulty: 1.022229202, terrain: "green|red|green", landmarks: "Cowies", fuelStation: true },
-            { km: 80, pace: "06:31", difficulty: 1.012269955, terrain: "yellow|green", landmarks: "", fuelStation: false },
-            { km: 85, pace: "07:06", difficulty: 1.102471179, terrain: "red|green|red|green", landmarks: "45th", fuelStation: false },
-            { km: 89, pace: "06:42", difficulty: 1.042336956, terrain: "green|yellow|green|yellow", landmarks: "TG", fuelStation: false }
+            { km: 6, pace: "06:55", difficulty: 1.025, terrain: "yellow", landmarks: "Easy Start", fuelStation: false },
+            { km: 11, pace: "06:46", difficulty: 1.002, terrain: "green|red|green", landmarks: "Big Polly's", fuelStation: false },
+            { km: 16, pace: "06:50", difficulty: 1.012, terrain: "green|red|yellow|red|green", landmarks: "Little Polly's", fuelStation: false },
+            { km: 21, pace: "06:58", difficulty: 1.032, terrain: "green|red|green|red|green", landmarks: "", fuelStation: false },
+            { km: 26, pace: "06:38", difficulty: 0.981, terrain: "green|red|green|red|green", landmarks: "Camperdown", fuelStation: false },
+            { km: 31, pace: "06:38", difficulty: 0.981, terrain: "green|red", landmarks: "", fuelStation: true },
+            { km: 36, pace: "06:42", difficulty: 0.991, terrain: "green|red|yellow", landmarks: "Cato", fuelStation: false },
+            { km: 41, pace: "06:42", difficulty: 0.991, terrain: "yellow|red|yellow", landmarks: "Harrison Flats", fuelStation: false },
+            { km: 46, pace: "06:38", difficulty: 0.981, terrain: "red|green|red", landmarks: "Drummond", fuelStation: true },
+            { km: 51, pace: "06:58", difficulty: 1.032, terrain: "red|yellow|red", landmarks: "", fuelStation: false },
+            { km: 56, pace: "06:30", difficulty: 0.963, terrain: "red|yellow|green|red|green", landmarks: "Botha's", fuelStation: true },
+            { km: 61, pace: "06:30", difficulty: 0.963, terrain: "green", landmarks: "", fuelStation: true },
+            { km: 66, pace: "06:30", difficulty: 0.963, terrain: "green", landmarks: "Fields", fuelStation: false },
+            { km: 71, pace: "06:30", difficulty: 0.963, terrain: "green|red|green", landmarks: "", fuelStation: false },
+            { km: 76, pace: "06:50", difficulty: 1.012, terrain: "red|green|red", landmarks: "Cowies", fuelStation: true },
+            { km: 81, pace: "06:46", difficulty: 1.002, terrain: "yellow|green", landmarks: "", fuelStation: false },
+            { km: 86, pace: "07:22", difficulty: 1.091, terrain: "red|green|red|green", landmarks: "45th", fuelStation: false },
+            { km: 91, pace: "06:58", difficulty: 1.032, terrain: "green|yellow|green|yellow", landmarks: "TG", fuelStation: false }
         ];
 
         // Global state
@@ -548,7 +563,7 @@
         let raceLogs = [];
         let useLocalStorage = false;
         let raceSettings = {
-            distance: 89,
+            distance: 91,
             targetTime: null, // in minutes
             startDelay: 0, // minutes to cross start line
             startTime: '05:15'
@@ -636,13 +651,14 @@
                 // Calculate base pace per km
                 basePace = targetSeconds / raceSettings.distance;
             } else {
-                // Default pace for 9:30 finish over 89km
-                basePace = (9.5 * 3600) / 89;
+                // Default pace for 10:20 finish over 91km
+                basePace = (10.333 * 3600) / 91;
             }
         }
         
         // Open settings modal
         function openSettings() {
+            clearValidationErrors();
             document.getElementById('settingsModal').style.display = 'flex';
         }
         
@@ -651,41 +667,200 @@
             document.getElementById('settingsModal').style.display = 'none';
         }
         
+        // Clear all validation errors
+        function clearValidationErrors() {
+            document.querySelectorAll('.settings-input').forEach(input => {
+                input.classList.remove('error');
+            });
+            document.querySelectorAll('.settings-error').forEach(error => {
+                error.style.display = 'none';
+                error.textContent = '';
+            });
+        }
+        
+        // Show validation error
+        function showValidationError(fieldId, errorMessage) {
+            const input = document.getElementById(fieldId);
+            const errorDiv = document.getElementById(fieldId + 'Error');
+            
+            input.classList.add('error');
+            errorDiv.textContent = errorMessage;
+            errorDiv.style.display = 'block';
+        }
+        
+        // Validate settings
+        function validateSettings() {
+            clearValidationErrors();
+            let hasErrors = false;
+            
+            // Validate start time
+            const startTime = document.getElementById('startTime').value;
+            if (!startTime || !startTime.match(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/)) {
+                showValidationError('startTime', 'Must be in valid HH:MM format');
+                hasErrors = true;
+            }
+            
+            // Validate race distance
+            const distance = parseInt(document.getElementById('raceDistanceInput').value);
+            if (isNaN(distance) || distance < 5) {
+                showValidationError('raceDistanceInput', 'Must be at least 5km');
+                hasErrors = true;
+            }
+            
+            // Validate target finish time if provided
+            const targetTimeStr = document.getElementById('targetFinishTime').value;
+            if (targetTimeStr && targetTimeStr.trim() !== '') {
+                const timeParts = targetTimeStr.split(':');
+                if (timeParts.length !== 2) {
+                    showValidationError('targetFinishTime', 'Must be in HH:MM format');
+                    hasErrors = true;
+                } else {
+                    const hours = parseInt(timeParts[0]);
+                    const minutes = parseInt(timeParts[1]);
+                    if (isNaN(hours) || isNaN(minutes) || minutes >= 60) {
+                        showValidationError('targetFinishTime', 'Must be in valid HH:MM format');
+                        hasErrors = true;
+                    } else if (!isNaN(distance) && distance >= 5) {
+                        // Calculate pace per km
+                        const totalMinutes = hours * 60 + minutes;
+                        const paceMinutesPerKm = totalMinutes / distance;
+                        
+                        if (paceMinutesPerKm < 3) {
+                            showValidationError('targetFinishTime', 'Too fast! Pace would be under 3:00/km');
+                            hasErrors = true;
+                        } else if (paceMinutesPerKm > 15) {
+                            showValidationError('targetFinishTime', 'Too slow! Pace would be over 15:00/km');
+                            hasErrors = true;
+                        }
+                    }
+                }
+            }
+            
+            // Validate start delay
+            const startDelay = document.getElementById('startDelay').value;
+            if (startDelay === '' || startDelay === null) {
+                document.getElementById('startDelay').value = '0';
+            } else {
+                const delayNum = parseInt(startDelay);
+                if (isNaN(delayNum) || delayNum < 0 || delayNum > 60) {
+                    showValidationError('startDelay', 'Must be between 0 and 60 minutes');
+                    hasErrors = true;
+                }
+            }
+            
+            return hasErrors;
+        }
+        
         // Save settings
         function saveSettings() {
-            const startTime = document.getElementById('startTime').value;
-            const distance = parseInt(document.getElementById('raceDistanceInput').value);
-            const targetTimeStr = document.getElementById('targetFinishTime').value;
-            const startDelay = parseInt(document.getElementById('startDelay').value) || 0;
-            
-            raceSettings.startTime = startTime;
-            raceSettings.distance = distance;
-            raceSettings.startDelay = startDelay;
-            
-            // Parse target time
-            if (targetTimeStr) {
-                const [hours, minutes] = targetTimeStr.split(':').map(Number);
-                raceSettings.targetTime = hours * 60 + minutes;
+            try {
+                console.log('Starting save settings...');
+                
+                // Validate first
+                const hasErrors = validateSettings();
+                if (hasErrors) {
+                    console.log('Validation errors found');
+                    return; // Don't save if there are validation errors
+                }
+                
+                console.log('Validation passed');
+                
+                const startTime = document.getElementById('startTime').value;
+                const distance = parseInt(document.getElementById('raceDistanceInput').value);
+                const targetTimeStr = document.getElementById('targetFinishTime').value;
+                const startDelay = parseInt(document.getElementById('startDelay').value) || 0;
+                
+                console.log('Parsed values:', { startTime, distance, targetTimeStr, startDelay });
+                
+                raceSettings.startTime = startTime;
+                raceSettings.distance = distance;
+                raceSettings.startDelay = startDelay;
+                
+                // Parse target time
+                if (targetTimeStr && targetTimeStr.trim() !== '') {
+                    const timeParts = targetTimeStr.split(':');
+                    const hours = parseInt(timeParts[0]) || 0;
+                    const minutes = parseInt(timeParts[1]) || 0;
+                    raceSettings.targetTime = hours * 60 + minutes;
+                    console.log('Parsed target time:', raceSettings.targetTime, 'minutes');
+                } else {
+                    raceSettings.targetTime = null;
+                }
+                
+                // Update displays
+                console.log('Updating display elements...');
+                const displayStartTime = document.getElementById('displayStartTime');
+                const raceDistance = document.getElementById('raceDistance');
+                const totalDistance = document.getElementById('totalDistance');
+                
+                console.log('Found elements:', { displayStartTime, raceDistance, totalDistance });
+                
+                if (displayStartTime) displayStartTime.textContent = startTime;
+                if (raceDistance) raceDistance.textContent = distance;
+                if (totalDistance) totalDistance.textContent = distance;
+                
+                console.log('Calculating base pace...');
+                // Recalculate pace and save
+                try {
+                    calculateBasePace();
+                    console.log('Base pace calculated successfully');
+                } catch (e) {
+                    console.error('Error calculating base pace:', e);
+                    throw e;
+                }
+                
+                console.log('Saving to storage...');
+                try {
+                    saveSettingsToStorage();
+                    console.log('Settings saved to storage successfully');
+                } catch (e) {
+                    console.error('Error saving to storage:', e);
+                    throw e;
+                }
+                
+                console.log('Creating/updating segments...');
+                try {
+                    // Recreate segments if distance changed from default
+                    if (distance !== 91) {
+                        createSegmentsForDistance();
+                    } else {
+                        // Always recreate segments with race data when distance is 91km
+                        createSegments();
+                    }
+                    console.log('Segments created/updated successfully');
+                } catch (e) {
+                    console.error('Error creating/updating segments:', e);
+                    throw e;
+                }
+                
+                console.log('Rendering track...');
+                try {
+                    // Always re-render everything to update all pace calculations
+                    renderTrack();
+                    console.log('Track rendered successfully');
+                } catch (e) {
+                    console.error('Error rendering track:', e);
+                    throw e;
+                }
+                
+                console.log('Updating stats...');
+                try {
+                    updateStats();
+                    console.log('Stats updated successfully');
+                } catch (e) {
+                    console.error('Error updating stats:', e);
+                    throw e;
+                }
+                
+                console.log('Save completed successfully, closing modal...');
+                // Close the modal on successful save
+                closeSettings();
+                
+            } catch (error) {
+                console.error('Error saving settings:', error);
+                console.error('Error stack:', error.stack);
+                alert('Error saving settings: ' + error.message + '\n\nPlease check the console for more details.');
             }
-            
-            // Update displays
-            document.getElementById('displayStartTime').textContent = startTime;
-            document.getElementById('raceDistance').textContent = distance;
-            document.getElementById('totalDistance').textContent = distance;
-            
-            // Recalculate pace and save
-            calculateBasePace();
-            saveSettingsToStorage();
-            
-            // Recreate segments if distance changed
-            if (distance !== 89) {
-                createSegmentsForDistance();
-            }
-            
-            // Re-render everything
-            renderTrack();
-            updateStats();
-            closeSettings();
         }
         
         // Create segments for custom distance
@@ -753,7 +928,7 @@
         function init() {
             loadSettings();
             loadLogs();
-            if (raceSettings.distance === 89) {
+            if (raceSettings.distance === 91) {
                 createSegments();
             } else {
                 createSegmentsForDistance();
@@ -825,16 +1000,29 @@
             segments.forEach((segment, index) => {
                 if (segment.sectionIndex !== currentSection) {
                     currentSection = segment.sectionIndex;
-                    const section = raceData[currentSection];
+                    const section = currentSection < raceData.length ? raceData[currentSection] : null;
                     
                     sectionDiv = document.createElement('div');
                     sectionDiv.className = 'section';
                     
                     const headerDiv = document.createElement('div');
                     headerDiv.className = 'section-header';
+                    // For custom distances, find the last segment in this section
+                    let sectionEndKm;
+                    if (section) {
+                        sectionEndKm = section.km;
+                    } else {
+                        // Find the last segment in this section
+                        let lastSegmentInSection = segment;
+                        for (let i = index + 1; i < segments.length; i++) {
+                            if (segments[i].sectionIndex !== currentSection) break;
+                            lastSegmentInSection = segments[i];
+                        }
+                        sectionEndKm = lastSegmentInSection.endKm;
+                    }
                     headerDiv.innerHTML = `
-                        <span>${segment.km}-${section.km}km ${segment.landmarks ? '- ' + segment.landmarks : ''}</span>
-                        <span>ETA: ${calculateETA(section.km)}</span>
+                        <span>${segment.km}-${sectionEndKm}km ${segment.landmarks ? '- ' + segment.landmarks : ''}</span>
+                        <span>ETA: ${calculateETA(sectionEndKm)}</span>
                     `;
                     sectionDiv.appendChild(headerDiv);
                     
@@ -844,10 +1032,23 @@
                     
                     const infoDiv = document.createElement('div');
                     infoDiv.className = 'section-info';
-                    infoDiv.innerHTML = `
-                        <span>Difficulty: ${section.difficulty.toFixed(2)}</span>
-                        <span>Pace: ${section.pace}/km</span>
-                    `;
+                    if (section) {
+                        // Original race data - calculate pace based on target time and difficulty
+                        const sectionPace = basePace * section.difficulty;
+                        const paceMinutes = Math.floor(sectionPace / 60);
+                        const paceSeconds = Math.floor(sectionPace % 60);
+                        infoDiv.innerHTML = `
+                            <span>Difficulty: ${section.difficulty.toFixed(2)}</span>
+                            <span>Pace: ${paceMinutes}:${paceSeconds.toString().padStart(2, '0')}/km</span>
+                        `;
+                    } else {
+                        // Custom distance - show target pace
+                        const targetPaceMinutes = Math.floor(basePace / 60);
+                        const targetPaceSeconds = Math.floor(basePace % 60);
+                        infoDiv.innerHTML = `
+                            <span>Target Pace: ${targetPaceMinutes}:${targetPaceSeconds.toString().padStart(2, '0')}/km</span>
+                        `;
+                    }
                     sectionDiv.appendChild(infoDiv);
                     
                     trackContainer.appendChild(sectionDiv);
